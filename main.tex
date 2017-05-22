@@ -38,19 +38,16 @@ Neural network models can be difficult to reproduce due to its many hyperparamet
 \section{Introduction}
 The recent resurgence in AI is in large part due to the many successful neural network models. These models often have many hyperparameters, and can be initialized and trained in multiple ways. However, the focus on many papers has been just the model itself, with a minimal or neglected description of the details, possibly due to the fact that different initilization and training schemes can still achieve similar results. Hence it is useful to investigate whether we can reproduce neural network papers using its description alone, and if not, what can be done to improve reproducibility.
 
-XXX
+The paper ``A Decomposable Attention Model for Natural Language Inference'' \citep{parikh_decomposable_2016} is interesting in that
 
-In the following sections, we give a detailed description of our interpretation of the \texttt{doc2vec} models, any ambiguities in the paper which slowed down own implementation, and a report of how we managed to implement the model.
+In the following sections, we give a description the vanilla and intra-sentence models, any ambiguities in the paper which slowed down our implementation, and a report of how we managed to implement the model.
 
 \section{Models}
+We found the model to be very well described, and there were few ambiguities which slowed down our implementation. The only part that may be unclear is the training objective's dropout being stated in the experimental section. We  now describe the model using the paper's notation for the purpose of being self-contained.
 
-\subsection{Ambiguities in the paper}
+\section{Ambiguities in experimental results}
 
-\section{Experimental results}
-
-\subsection{Ambiguities common to most neural network papers}
-
-\subsection{Ambiguities in the paper}
+XXX mention the thing about fixed word embeddings in test set possibly causing an implementation issue
 
 \subsection{Results}
 
@@ -60,7 +57,7 @@ In the following sections, we give a detailed description of our interpretation 
     Method     & Accuracy \\ \hline
     \hline
 \end{tabular}
-\caption{Classification results for the SNLI dataset. All results use a learning rate of $0.01$, $30$ epochs, and a batch size of $2048$.}
+\caption{Classification results for the SNLI dataset. XXX.}
 \label{table:results}
 \end{table}
 
