@@ -1,0 +1,73 @@
+\PassOptionsToPackage{pdfpagelabels=false}{hyperref}
+\documentclass{article}
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{siunitx}
+\usepackage[titletoc,title]{appendix}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+
+\makeatletter
+\newcommand*{\Appendixautorefname}{Appendix}
+\newcommand{\specialcell}[2][c]{\begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
+\newsavebox\CBox\def\textBF#1{\sbox\CBox{#1}\resizebox{\wd\CBox}{\ht\CBox}{\textbf{#1}}}\parindent=0pt
+\sisetup{exponent-product = \cdot}
+\setlength{\parskip}{0.8em}
+\renewcommand\hyper@natlinkbreak[2]{#1}
+\makeatother
+
+\begin{document}
+
+\title{Reproduction of A Decomposable Attention Model for Natural Language Inference}
+
+\author{
+  \textbf{Xingyi Xu} \\ University of Melbourne \\ \texttt{stevenxxiu@gmail.com} \and
+  \textbf{Jey Han Lau} \\ IBM Research \\ \texttt{depthchargex@gmail.com} \and
+  \textbf{Timothy Baldwin} \\ University of Melbourne \\ \texttt{tb@ldwin.net}
+}
+\maketitle
+
+\begin{abstract}
+Neural network models can be difficult to reproduce due to its many hyperparameters, initialization and training details. We attempted to reproduce the results of a paper ``A Decomposable Attention Model for Natural Language Inference'' for the stanford natural language inference dataset, using \texttt{tensorflow}. For the vanilla approach, we obtained an accuracy of 85.9\%, comparable to the paper's 86.3\%. However for the intra-sentence approach, we did not find an improvement, and instead found significant overfitting and obtained a lower accuracy of 85.7\%, in comparison to the paper's 86.8\%.
+\end{abstract}
+
+\section{Introduction}
+The recent resurgence in AI is in large part due to the many successful neural network models. These models often have many hyperparameters, and can be initialized and trained in multiple ways. However, the focus on many papers has been just the model itself, with a minimal or neglected description of the details, possibly due to the fact that different initilization and training schemes can still achieve similar results. Hence it is useful to investigate whether we can reproduce neural network papers using its description alone, and if not, what can be done to improve reproducibility.
+
+XXX
+
+In the following sections, we give a detailed description of our interpretation of the \texttt{doc2vec} models, any ambiguities in the paper which slowed down own implementation, and a report of how we managed to implement the model.
+
+\section{Models}
+
+\subsection{Ambiguities in the paper}
+
+\section{Experimental results}
+
+\subsection{Ambiguities common to most neural network papers}
+
+\subsection{Ambiguities in the paper}
+
+\subsection{Results}
+
+\begin{table}[htbp]\centering
+\begin{tabular}{|l|r|}
+    \hline
+    Method     & Accuracy \\ \hline
+    \hline
+\end{tabular}
+\caption{Classification results for the SNLI dataset. All results use a learning rate of $0.01$, $30$ epochs, and a batch size of $2048$.}
+\label{table:results}
+\end{table}
+
+\section{Conclusion}
+We have described the process in which we attempted to reproduce the paper ``Reproduction of A Decomposable Attention Model for Natural Language Inference''. XXX. We hope that our findings can guide future paper authors in the area of deep learning to describe their models in a clearer fashion so that they are more easily reproducible.
+
+\bibliography{main}{}
+\bibliographystyle{apalike}
+
+\end{document}
