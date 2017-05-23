@@ -7,6 +7,7 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{siunitx}
+\usepackage{hhline}
 \usepackage[titletoc,title]{appendix}
 \usepackage[utf8]{inputenc}
 \usepackage[margin=1in]{geometry}
@@ -38,12 +39,29 @@ Neural network models can be difficult to reproduce due to its many hyperparamet
 \section{Introduction}
 The recent resurgence in AI is in large part due to the many successful neural network models. These models often have many hyperparameters, and can be initialized and trained in multiple ways. However, the focus on many papers has been just the model itself, with a minimal or neglected description of the details, possibly due to the fact that different initilization and training schemes can still achieve similar results. Hence it is useful to investigate whether we can reproduce neural network papers using its description alone, and if not, what can be done to improve reproducibility.
 
-The paper ``A Decomposable Attention Model for Natural Language Inference'' \citep{parikh_decomposable_2016} is interesting in that
+We investigate a paper in the space of natural language inference. This is the problem of given two sentences, determining whether sentence 2 entails (E), contradicts (C), or is neutral (N) to sentence 1. Examples are given in \autoref{table:examples}.
+
+\begin{table}[htbp]\centering
+\setlength\tabcolsep{2pt}
+\begin{tabular}{|p{7.5cm}|p{7.5cm}|r|}
+    \hline
+    Sentence 1 & Sentence 2 & Label \\ \hhline{|===|}
+    A man inspects the uniform of a figure in some East Asian country. & The man is sleeping & C \\ \hline
+    An older and younger man smiling. & Two men are smiling and laughing at the cats playing on the floor. & N \\ \hline
+    A black race car starts up in front of a crowd of people. & A man is driving down a lonely road. & C \\ \hline
+    A soccer game with multiple males playing. & Some men are playing a sport. & E \\ \hline
+    A smiling costumed woman is holding an umbrella. & A happy woman in a fairy costume holds an umbrella. & E \\ \hline
+\end{tabular}
+\caption{Examples from the Stanford Natural Langauge Inference (SNLI) dataset.}
+\label{table:examples}
+\end{table}
+
+The paper ``A Decomposable Attention Model for Natural Language Inference'' \citep{parikh_decomposable_2016} is interesting in that despite being a model with a relatively low 580k parameters, it achieves a good claimed accuracy of 86.8\% on the SNLI dataset \citep{snli:emnlp2015}, which is not too far behind the current best model of 88.8\% accuracy, with 6.4m parameters. Another aspect is that the vanilla part of the model does not take any word ordering into account, however still manages to achieve a claimed accuracy of 86.3\%. For these reasons we decided to investigate this particular paper.
 
 In the following sections, we give a description the vanilla and intra-sentence models, any ambiguities in the paper which slowed down our implementation, and a report of how we managed to implement the model.
 
 \section{Models}
-We found the model to be very well described, and there were few ambiguities which slowed down our implementation. The only part that may be unclear is the training objective's dropout being stated in the experimental section. We  now describe the model using the paper's notation for the purpose of being self-contained.
+We found the model to be very well described, and there were few ambiguities which slowed down our implementation. The only part that may be unclear is the training objective's dropout being stated in the experimental section. We now describe the model using the paper's notation for the purpose of being self-contained.
 
 \section{Ambiguities in experimental results}
 
