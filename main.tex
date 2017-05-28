@@ -85,14 +85,20 @@ In the intra-sentence attention modification to the model, $\bar{a}_i, \bar{b}_i
 
 And in place of the word embeddings, we use: $\bar{a}_i := [a_i, a_i'], \bar{b}_i := [b_i, b_i']$.
 
+\subsection{Ambiguities common to most neural network papers}
+The total loss is described, but not the batch loss. We assume that the batch loss is the loss restricted to instances within the batch.
+
 \section{Experimental results}
+In our reproduction of the vanilla approach, we obtained an accuracy of 85.9\%, comparable to the paper's 86.3\%. However for the intra-sentence approach, we did not find an improvement, and instead found significant overfitting and obtained a lower accuracy of 85.7\%, in comparison to the paper's 86.8\%.
 
-\subsection{Ambiguities}
-
-XXX mention the thing about fixed word embeddings in test set possibly causing an implementation issue
+\subsection{Ambiguities in the paper}
 
 \subsection{Implementation details}
-XXX mention a thing or two about how we did masking
+Due to our use of GPUs, it was easier for us to use one large batch size instead of the paper's ``10 asynchronous gradient-update threads''. We tried a similar setting with a batch size of $40$ with Adagrad, but we found that used Adam \citep{kingma_adam:_2014}, with a learning rate of $0.01$ with a batch size of $256$, converged and ran faster (\autoref{table:results}).
+
+Usually when embedding vectors are trained, we only need to include words in the training set, but since embeddings are pretrained static GloVe vectors \citep{pennington2014glove}, we should include all words in the GloVe dataset. For efficiency this is the intersection between the set of GloVe words and all words in the SNLI dataset (this includes the training, validation and test sets). This detail can be missed in the implementation.
+
+It may also be worth mentioning the way we implemented masking. We used a binary masking array for each batch. The masking array was used in the attend step (both intra and inter) to set the unnormalized weights being masked out to $-\infty$, so that these values become $0$ after the softmax function is run. The masking array was used again in the aggregate step, in which comparison vectors being masked out were set to $0$ before being summed over.
 
 \subsection{Results}
 
