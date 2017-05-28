@@ -56,7 +56,7 @@ We investigate a paper in the space of natural language inference. This is the p
 \label{table:examples}
 \end{table}
 
-The paper ``A Decomposable Attention Model for Natural Language Inference'' \citep{parikh_decomposable_2016} is interesting in that despite being a model with a relatively low 580k parameters, it achieves a good claimed accuracy of 86.8\% on the SNLI dataset \citep{snli:emnlp2015}, which is not too far behind the current best model of 88.8\% accuracy, with 6.4m parameters. Another aspect is that the vanilla part of the model does not take any word ordering into account, however still manages to achieve a claimed accuracy of 86.3\%. For these reasons we decided to investigate this particular paper.
+The paper ``A Decomposable Attention Model for Natural Language Inference'' \citep{parikh_decomposable_2016} is interesting in that despite being a model with a relatively low 580K parameters, it achieves a good claimed accuracy of 86.8\% on the SNLI dataset \citep{snli:emnlp2015}, which is not too far behind the current best model of 88.8\% accuracy, with 6.4M parameters. Another aspect is that the vanilla part of the model does not take any word ordering into account, however still manages to achieve a claimed accuracy of 86.3\%. For these reasons we decided to investigate this particular paper.
 
 In the following sections, we give a description the vanilla and intra-sentence models, any ambiguities in the paper which slowed down our implementation, and a report of how we managed to implement the model.
 
@@ -140,7 +140,7 @@ The results are presented in \autoref{table:results}.
 \end{table}
 
 \section{Conclusion}
-We have described the process in which we attempted to reproduce the paper ``Reproduction of A Decomposable Attention Model for Natural Language Inference''. XXX. We hope that our findings can guide future paper authors in the area of deep learning to describe their models in a clearer fashion so that they are more easily reproducible.
+We have described the process in which we attempted to reproduce the paper ``Reproduction of A Decomposable Attention Model for Natural Language Inference''. The paper was in general well described and not difficult to reproduce. Issues include the slightly vague description of the network parameters, normalization and initialization of OOV and \texttt{null} vectors, and the initilization of the embedding projection matrix. The motivations behind the processing of OOV words can also be better described. We hope that our findings can guide future paper authors in the area of deep learning to describe their models in a clearer fashion so that they are more easily reproducible.
 
 \bibliography{main}{}
 \bibliographystyle{apalike}
