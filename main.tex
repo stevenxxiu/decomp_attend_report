@@ -110,22 +110,32 @@ The paper explicitly stated that they used ``the tokenized sentences from the no
 
 It is not explained why the authors decided to project the embeddings down from GloVe's pretrained $300$ dimensions to $200$ dimensions. Projection may serve some regularization effect. Denote the projection matrix $W_\text{proj}$ and the first layer of $F, G$'s weight be $W_F, W_G$, with $W_{G,1}, W_{G,2}$ the top and bottom halves of $W_G$. Then an equivalent network is $W_{F'} = W_\text{proj} W_F, W_{G',1} = W_\text{proj} W_{G,1}, W_{G',2} = W_\text{proj} W_{G,2}$. With arbitrary inputs to these 2 networks, this can be written as $[W_{F'}, W_{G',1}, W_{G',2}] = W_\text{proj} [W_F, W_{G',1}, W_{G',2}]$. We can see that LHS has rank $\le 300$ while RHS has rank $\le 200$. Empirically, this slightly reduces overfitting, despite having the same number of parameters (XXX).
 
+The initialization of projection embeddings itself is unclear. We tried to initilize the same as other parameters, through $\mathcal{N}(0, 0.01)$, and also tried initializing them with the PCA transform matrix (in this case the embeddings are also centered first).
+
 \subsection{Implementation details}
-Due to our use of GPUs, it was easier for us to use one large batch size instead of the paper's ``10 asynchronous gradient-update threads''. We tried a similar setting with a batch size of $40$ with Adagrad, but we found that used Adam \citep{kingma_adam:_2014}, with a learning rate of $0.01$ with a batch size of $256$, converged and ran faster (\autoref{table:results}).
+Due to our use of GPUs, it was easier for us to use one large batch size instead of the paper's ``10 asynchronous gradient-update threads''. We tried a similar setting with a batch size of $40$ with Adagrad, but we found that used Adam \citep{kingma_adam:_2014}, with a learning rate of $0.0005$ with a batch size of $256$, converged and ran faster, and attained a better result (\autoref{table:results}).
 
 Usually when embedding vectors are trained, we only need to include words in the training set, but since embeddings are pretrained static GloVe vectors, we should include all words in the GloVe dataset. For efficiency this is the intersection between the set of GloVe words and all words in the SNLI dataset (this includes the training, validation and test sets). This detail can be missed in the implementation.
 
 It may also be worth mentioning the way we implemented masking. We used a binary masking array for each batch. The masking array was used in the attend step (both intra and inter) to set the unnormalized weights being masked out to $-\infty$, so that corresponding outputs of the softmax are $0$. The masking array was used again in the aggregate step, in which comparison vectors being masked out were set to $0$ before being summed over.
 
 \subsection{Results}
+The results are presented in \autoref{table:results}.
 
 \begin{table}[htbp]\centering
-\begin{tabular}{|l|r|}
+\begin{tabular}{|l|l|l|l|r|}
     \hline
-    Method     & Accuracy \\ \hline
+    Method         & Embedding transform & Projection init & Update  & Accuracy \\ \hline
+    vanilla        & norm                & Gaussian        & Adam    & 0.855558 \\
+    vanilla        & mean norm           & Gaussian        & Adam    & \textBF{0.858917} \\
+    vanilla        & mean norm           & PCA             & Adam    & 0.855252 \\
+    intra-sentence & norm                & Gaussian        & Adam    & 0.856983 \\
+    intra-sentence & mean norm           & Gaussian        & Adam    & ? \\
+    intra-sentence & mean norm           & PCA             & Adam    & ? \\
+    intra-sentence & norm                & Gaussian        & AdaGrad & 0.843139 \\
     \hline
 \end{tabular}
-\caption{Classification results for the SNLI dataset. XXX.}
+\caption{Classification results for the SNLI dataset. For Adam we used a learning rate of $0.0005$, a batch size of $256$, and $400$ epochs. For AdaGrad we used a learning rate of $0.025$, a batch size of $40$, and $400$ epochs. We took the result of the best epoch on validation.}
 \label{table:results}
 \end{table}
 
