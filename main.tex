@@ -63,7 +63,7 @@ In the following sections, we give a description the vanilla and intra-sentence 
 \section{Models}
 We found the model to be very well described, and the only part that may be unclear is the training objective's dropout being stated in the experimental section. We now describe the model for the purpose of being self-contained, and use the paper's notation.
 
-Let the two input sentences be $\textbf{a}=(a_1,...,a_{l_a})$ and $\textbf{b}=(b_1,...,b_{l_b})$ with lengths $l_a$ and $l_b$, respectively. $a_i, b_j\in\mathbb{R}^d$ are word embeddings of dimension $d$ for word $i$ in sentence 1 and word $j$ in sentence 2, and we explicitly define them in the next section. Now let $\bar{a}_i = a_i, \bar{b}_i = b_i$. The reason we use $\bar{a}_i, \bar{b}_i$ instead is for convenience in describing the intra-sentence approach, where they are different to $a_i, b_i$.
+Let the two input sentences be $\textbf{a}=(a_1,...,a_{l_a})$ and $\textbf{b}=(b_1,...,b_{l_b})$ with lengths $l_a$ and $l_b$, respectively. $a_i, b_j\in\mathbb{R}^d$ are word embeddings of dimension $d$ for word $i$ in sentence 1 and word $j$ in sentence 2. In the paper's experiments they are fixed GloVe vectors with some special treatment regarding OOV words and the \texttt{null} word. Now let $\bar{a}_i = a_i, \bar{b}_i = b_i$. The reason we use $\bar{a}_i, \bar{b}_i$ instead is for convenience in describing the intra-sentence approach, where they are different to $a_i, b_i$.
 
 For the first step, we soft-align each word with the other sentence. Let $F$ be a feed-forward network with ReLU activations, and define the unnormalized attention weights $e_{i,j} := F(\bar{a}_i)^T F(\bar{b}_j)$. We normalize and perform a weighted sum:
 
