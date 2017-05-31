@@ -63,7 +63,7 @@ In the following sections, we give a description the vanilla and intra-sentence 
 \section{Models}
 We found the model to be very well described, and the only part that may be unclear is the training objective's dropout being stated in the experimental section. We now describe the model for the purpose of being self-contained, and use the paper's notation.
 
-Let the two input sentences be $\textbf{a}=(a_1,...,a_{l_a})$ and $\textbf{b}=(b_1,...,b_{l_b})$ with lengths $l_a$ and $l_b$, respectively. $a_i, b_j\in\mathbb{R}^d$ are word embeddings of dimension $d$ for word $i$ in sentence 1 and word $j$ in sentence 2. In the paper's experiments they are fixed GloVe vectors with some special treatment regarding OOV words and the \texttt{null} word. Now let $\bar{a}_i = a_i, \bar{b}_i = b_i$. The reason we use $\bar{a}_i, \bar{b}_i$ instead is for convenience in describing the intra-sentence approach, where they are different to $a_i, b_i$.
+Let the two input sentences be $\textbf{a}=(a_1,...,a_{l_a})$ and $\textbf{b}=(b_1,...,b_{l_b})$ with lengths $l_a$ and $l_b$, respectively. $a_i, b_j\in\mathbb{R}^d$ are word embeddings of dimension $d$ for word $i$ in sentence 1 and word $j$ in sentence 2, and we explicitly define them in the next section. Now let $\bar{a}_i = a_i, \bar{b}_i = b_i$. The reason we use $\bar{a}_i, \bar{b}_i$ instead is for convenience in describing the intra-sentence approach, where they are different to $a_i, b_i$.
 
 For the first step, we soft-align each word with the other sentence. Let $F$ be a feed-forward network with ReLU activations, and define the unnormalized attention weights $e_{i,j} := F(\bar{a}_i)^T F(\bar{b}_j)$. We normalize and perform a weighted sum:
 
@@ -88,7 +88,9 @@ And in place of the word embeddings, we use: $\bar{a}_i := [a_i, a_i'], \bar{b}_
 \subsection{Ambiguities common to most neural network papers}
 The total loss is described, but not the batch loss. We assume that the batch loss is the loss restricted to instances within the batch.
 
-\section{Experimental results}
+\section{Experiments}
+In our implementation of the paper's experiment, we performed the same preprocessing steps. For the embeddings, we used GloVe vectors of size $300$. These were fixed and not updated during training. We used random fixed embeddings for OOV terms and \texttt{null}. All embeddings were then normalized to a $l_2$ norm of $1$, then in the case of PCA had their columns shifted to mean $0$ (shifting means does not affect the model since any biases can be absorbed in the next layers). The vectors were then projected down to size $200$. The projection matrix was trained and there was no bias term in the projection. We also compared results with and without projections, and different initializations of the projection matrix. The projected vectors are then used as $a, b$ in the model.
+
 In our reproduction of the vanilla approach, we obtained an accuracy of 85.9\%, comparable to the paper's 86.3\%. However for the intra-sentence approach, we did not find an improvement, and instead found significant overfitting and obtained a lower accuracy of 85.7\%, in comparison to the paper's 86.8\%.
 
 \subsection{Ambiguities in the paper}
@@ -110,7 +112,7 @@ The paper explicitly stated that they used ``the tokenized sentences from the no
 
 It is not explained why the authors decided to project the embeddings down from GloVe's pretrained $300$ dimensions to $200$ dimensions. Projection may serve some regularization effect. Denote the projection matrix $W_\text{proj}$ and the first layer of $F, G$'s weight be $W_F, W_G$, with $W_{G,1}, W_{G,2}$ the top and bottom halves of $W_G$. Then an equivalent network is $W_{F'} = W_\text{proj} W_F, W_{G',1} = W_\text{proj} W_{G,1}, W_{G',2} = W_\text{proj} W_{G,2}$. With arbitrary inputs to these 2 networks, this can be written as $[W_{F'}, W_{G',1}, W_{G',2}] = W_\text{proj} [W_F, W_{G',1}, W_{G',2}]$. We can see that LHS has rank $\le 300$ while RHS has rank $\le 200$. Empirically from \autoref{fig:test_no_proj_vs_proj}, this slightly reduces overfitting, despite having the same number of parameters.
 
-The initialization of projection embeddings itself is unclear. We tried to initilize the same as other parameters, through $\mathcal{N}(0, 0.01)$, and also tried initializing them with the PCA transform matrix (in this case the embeddings are also centered first).
+The initialization of projection embeddings itself is unclear. We tried to initilize the same as other parameters, through $\mathcal{N}(0, 0.01)$, and also tried initializing them with the PCA transform matrix.
 
 \subsection{Implementation details}
 Due to our use of GPUs, it was easier for us to use one large batch size instead of the paper's ``10 asynchronous gradient-update threads''. We tried a similar setting with a batch size of $40$ with Adagrad, but we found that used Adam \citep{kingma_adam:_2014}, with a learning rate of $0.0005$ with a batch size of $256$, converged and ran faster, and attained a better result (\autoref{table:results}).
@@ -120,7 +122,7 @@ Usually when embedding vectors are trained, we only need to include words in the
 It may also be worth mentioning the way we implemented masking. We used a binary masking array for each batch. The masking array was used in the attend step (both intra and inter) to set the unnormalized weights being masked out to $-\infty$, so that corresponding outputs of the softmax are $0$. The masking array was used again in the aggregate step, in which comparison vectors being masked out were set to $0$ before being summed over.
 
 \subsection{Results}
-The results are presented in \autoref{table:results}. Using mean norm or different projection initializations do not appear to make a significant difference. Using the paper's AdaGrad and it's settings also do not perform as well.
+The results are presented in \autoref{table:results}. Using PCA as initialization converges, but otherwise does not make a significant difference. The paper's AdaGrad and it's settings has worser performance.
 
 From \autoref{fig:test_vanilla_vs_intra}, we can see that intra-sentence initially performs slightly better, but then becomes worse. This is likely due to overfitting, due to the initial rise in test performance and then the gradual decay.
 
@@ -129,18 +131,15 @@ From \autoref{fig:test_vanilla_vs_intra}, we can see that intra-sentence initial
     \hline
     Method         & Embedding transform & Projection init & Update  & Accuracy \\ \hline
     vanilla        & norm                & Gaussian        & Adam    & 0.855558 \\
-    vanilla        & mean norm           & Gaussian        & Adam    & \textBF{0.858917} \\
-    vanilla        & mean norm           & PCA             & Adam    & 0.855252 \\
+    vanilla        & mean norm           & PCA             & Adam    & 0.858917 \\
     intra-sentence & norm                & Gaussian        & Adam    & 0.856983 \\
-    intra-sentence & mean norm           & Gaussian        & Adam    & 0.855863 \\
-    intra-sentence & mean norm           & PCA             & Adam    & 0.856169 \\
+    intra-sentence & mean norm           & PCA             & Adam    & 0.853522 \\
     intra-sentence & norm                & Gaussian        & AdaGrad & 0.843139 \\
     \hline
 \end{tabular}
 \caption{Classification results for the SNLI dataset. For Adam we used a learning rate of $0.0005$, a batch size of $256$, and $400$ epochs. For AdaGrad we used a learning rate of $0.025$, a batch size of $40$, and $400$ epochs. We took the result of the best epoch on validation.}
 \label{table:results}
 \end{table}
-
 
 \begin{figure}
 \centering
