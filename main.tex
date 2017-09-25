@@ -56,7 +56,7 @@ We investigate a paper in the space of natural language inference. This is the p
 \label{table:examples}
 \end{table}
 
-The paper ``A Decomposable Attention Model for Natural Language Inference'' \citep{parikh_decomposable_2016} is interesting in that despite being a model with a relatively low 580K parameters, it achieves a good claimed accuracy of 86.8\% on the SNLI dataset \citep{snli:emnlp2015}, which is not too far behind the current best model of 88.8\% accuracy, with 6.4M parameters. Another aspect is that the vanilla part of the model does not take any word ordering into account, however still manages to achieve a claimed accuracy of 86.3\%. For these reasons we decided to investigate this particular paper.\footnote{Our source code is available at \url{https://github.com/stevenxxiu/decomp_attend/}.}
+The paper ``A Decomposable Attention Model for Natural Language Inference'' \citep{parikh_decomposable_2016} is interesting in that despite being a model with a relatively low 580K parameters, it achieves a good claimed accuracy of 86.8\% on the SNLI dataset \citep{bowman_large_2015}, which is not too far behind the current best model of 88.8\% accuracy, with 6.4M parameters. Another aspect is that the vanilla part of the model does not take any word ordering into account, however still manages to achieve a claimed accuracy of 86.3\%. For these reasons we decided to investigate this particular paper.\footnote{Our source code is available at \url{https://github.com/stevenxxiu/decomp_attend/}.}
 
 In the following sections, we give a description the vanilla and intra-sentence models, any ambiguities in the paper which slowed down our implementation, and a report of how we managed to implement the model.
 
@@ -100,7 +100,7 @@ What $F, F_\text{intra}, G, H$ are exactly is not specified. The paper described
 
 The total number of parameters then approximately matches that given in the paper. For the vanilla approach, this is $300 \cdot 200 + (201 \cdot 200 + 201 \cdot 200) + (401 \cdot 200 + 201 \cdot 200) + (401 \cdot 200 + 201 \cdot 200 + 201 \cdot 3) = 381803 \approx 382\text{K}$, and for the intra-sentence approach, this is $300 \cdot 200 + 21 + (201 \cdot 200 + 201 \cdot 200) + (401 \cdot 200 + 201 \cdot 200) + (801 \cdot 200 + 201 \cdot 200) + (401 \cdot 200 + 201 \cdot 200 + 201 \cdot 3) = 582224 \approx 582\text{K}$.
 
-The description of out-of-vocabulary (OOV) words is slightly unclear. We suppose it is any word that is not in the pretrained GloVe dataset \citep{pennington2014glove}. There were then a total of $4042 + 80 + 86 = 4208$ OOV words in the SNLI dataset, for train, val and test respectively. Most had spelling mistakes or were words joined with a hyphen.
+The description of out-of-vocabulary (OOV) words is slightly unclear. We suppose it is any word that is not in the pretrained GloVe dataset \citep{pennington_glove_2014}. There were then a total of $4042 + 80 + 86 = 4208$ OOV words in the SNLI dataset, for train, val and test respectively. Most had spelling mistakes or were words joined with a hyphen.
 
 We assume that the OOV vectors are also normalized to a $l_2$ norm of $1$ after their random initialization, as otherwise they would be on a different scale to the GloVe vectors, and we found this to produce worse results.
 
@@ -115,7 +115,7 @@ It is not explained why the authors decided to project the embeddings down from 
 The initialization of projection embeddings itself is unclear. We tried to initilize the same as other parameters, through $\mathcal{N}(0, 0.01)$, and also tried initializing them with the PCA transform matrix.
 
 \subsection{Implementation details}
-Due to our use of GPUs, it was easier for us to use one large batch size instead of the paper's ``10 asynchronous gradient-update threads''. We tried a similar setting with a batch size of $40$ with Adagrad, but we found that used Adam \citep{kingma_adam:_2014}, with a learning rate of $0.0005$ with a batch size of $256$, converged and ran faster, and attained a better result (\autoref{table:results}).
+Due to our use of GPUs, it was easier for us to use one large batch size instead of the paper's ``10 asynchronous gradient-update threads''. We tried a similar setting with a batch size of $40$ with Adagrad, but we found that used Adam \citep{kingma_adam_2014}, with a learning rate of $0.0005$ with a batch size of $256$, converged and ran faster, and attained a better result (\autoref{table:results}).
 
 Usually when embedding vectors are trained, we only need to include words in the training set, but since embeddings are pretrained static GloVe vectors, we should include all words in the GloVe dataset. For efficiency this is the intersection between the set of GloVe words and all words in the SNLI dataset (this includes the training, validation and test sets). This detail can be missed in the implementation.
 
